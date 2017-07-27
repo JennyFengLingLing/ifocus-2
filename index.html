@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>仿淘宝首页jquery轮播焦点图</title>
+		<link type="text/css" rel="stylesheet" href="css/ifocus-2.css" />
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				var $slider = $('.slider');
+				var $slider_img = $('.slider-img');
+				var $btn = $('.slider-btn');
+				var $btn_a = $btn.find('a')
+				var $slider_cirle=$('.slider-circle');
+				var v_width = $slider.width();
+				var page = 1;
+				var timer = null;
+				var page_count = $slider_img.find('li').length; //计算图片个数
+				var slider_cir = "<li class='selected'><a href='#'></a></li>";
+				for (var i = 1; i < page_count; i++) {
+					slider_cir += "<li><a href='#'></a></li>";
+				}
+				$slider_cirle.append(slider_cir);//添加焦点
+				var cirLeft = $slider_cirle.width() * (-0.5);
+				$slider_cirle.css({
+					'marginLeft': cirLeft
+				});//将横幅调整居中
+				$slider_img.width(page_count * v_width);//设置图片所在ul宽度
+
+				//图片轮播
+				function move(obj, classname) {
+					if (!$slider_img.is(':animated')) {
+						if (classname == 'prevBtn') {
+							if (page == 1) {
+								$slider_img.animate({
+									left: -v_width * (page_count - 1)
+								});
+//								$slider_img.css("left",-v_width * (page_count - 1));//没有动画
+								page = page_count;
+								cirMove();
+							} else {
+								$slider_img.animate({
+									left: '+=' + v_width
+								}, "slow");
+//								$slider_img.css("left",-v_width * (page-2));//没有动画
+								page--;
+								cirMove();
+							}
+						} else {
+							if (page == page_count) {
+								$slider_img.animate({
+									left: 0
+								});
+//								$slider_img.css("left",0);//没有动画
+								page = 1;
+								cirMove();
+							} else {
+								$slider_img.animate({
+									left: '-=' + v_width
+								}, "slow");
+//								$slider_img.css("left",-page*v_width);//没有动画
+								page++;
+								cirMove();
+							}
+						}
+					}
+				}
+
+				//焦点轮播
+				function cirMove() {
+					$('.slider-circle li').eq(page - 1).addClass('selected')
+						.siblings().removeClass('selected');
+				}
+				//鼠标移动到图片上时，显示左右按键；鼠标移开时，按键隐藏，并使图片每隔3000毫秒切换一次
+				$slider.mouseover(function() {
+					$btn.css({
+						'display': 'block'
+					});
+					clearInterval(timer);
+				}).mouseout(function() {
+					$btn.css({
+						'display': 'none'
+					});
+					clearInterval(timer);
+					timer = setInterval(move, 3000);
+				}).trigger("mouseout"); 
+				//鼠标移动到单个按键时，该按键透明度降低
+				$btn_a.mouseover(function() {
+					$(this).animate({
+						opacity: 0.6
+					}, 'fast');
+					$btn.css({
+						'display': 'block'
+					});
+					return false;
+				}).mouseleave(function() {
+					//鼠标离开
+					$(this).animate({
+						opacity: 0.3
+					}, 'fast');
+					$btn.css({
+						'display': 'none'
+					});
+					return false;
+				}).click(function() {
+					//单击按键事件
+					clearInterval(timer);
+					timer = setInterval(move, 3000);
+					move($(this), this.className);
+				});
+				//单击焦点事件
+				$('.slider-circle li').on('click', function() {
+					var index = $('.slider-circle li').index(this);
+					$slider_img.animate({
+						left: -v_width * index
+					}, 'slow');
+					page = index + 1;
+					cirMove();
+				});
+			});
+		</script>
+	</head>
+
+	<body>
+		<div align="center" class="center">
+			<div class="slider">
+				<div class="slider-btn">
+					<a href="javascript:;" class="prevBtn"><i></i></a>
+					<a href="javascript:;" class="nextBtn"><i></i></a>
+					
+				</div>
+				<ul class="slider-img">
+					<li>
+						<a href="#"><img src="images/01.jpg"></a>
+					</li>
+					<li>
+						<a href="#"><img src="images/02.jpg"></a>
+					</li>
+					<li>
+						<a href="#"><img src="images/03.jpg"></a>
+					</li>
+					<li>
+						<a href="#"><img src="images/04.jpg"></a>
+					</li>
+					<li>
+						<a href="#"><img src="images/05.jpg"></a>
+					</li>
+				</ul>
+				<ul class="slider-circle"></ul>
+			</div>
+		</div>
+	</body>
+
+</html>
